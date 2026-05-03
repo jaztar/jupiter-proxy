@@ -2,17 +2,18 @@ from flask import Flask, request, Response
 import requests
 
 app = Flask(__name__)
-
-# Use lite-api which is accessible outside Telstra
 JUPITER_BASE = "https://lite-api.jup.ag"
 
 @app.route('/quote', methods=['GET'])
 def quote():
     try:
+        # Clean params — remove any that cause issues
+        params = dict(request.args)
+        params.pop('onlyDirectRoutes', None)
         r = requests.get(
             f"{JUPITER_BASE}/swap/v1/quote",
-            params=request.args,
-            timeout=15
+            params=params,
+            timeout=20
         )
         return Response(r.content, status=r.status_code, content_type='application/json')
     except Exception as e:
